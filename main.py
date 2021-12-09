@@ -1,26 +1,27 @@
 import datetime
+import os
 import pandas
 import collections
+from dotenv import load_dotenv
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-def started_date():
-    started_year = 1920
-    now_year = datetime.datetime.now()
-    return now_year.year - started_year
+def get_age_winery():
+    foundation_year = 1920
+    this_year = datetime.datetime.now()
+    return this_year.year - foundation_year
 
 
-def reading_db():
-    excel_data_df = pandas.read_excel(
-                    'wine.xlsx',
+def get_wines_assortment(data_base):
+    wines_data = pandas.read_excel(
+                    data_base,
                     sheet_name='Лист1',
                     na_values=False,
                     keep_default_na=False
-                    )
-    wines = excel_data_df.to_dict(orient='records')
+                    ).to_dict(orient='records')
     categories = collections.defaultdict(list)
-    for wine in wines:
+    for wine in wines_data:
         categories[wine['Категория']].append(wine)
     return categories
 
@@ -38,8 +39,10 @@ def render_page(categories, env, date):
 
 
 def main():
-    categories = reading_db()
-    date = started_date()
+    load_dotenv()
+    data_base = os.getenv('DB_XLSX', default='wine.xlsx')
+    categories = get_wines_assortment(data_base)
+    date = get_age_winery()
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
