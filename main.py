@@ -14,14 +14,14 @@ def get_age_winery():
 
 
 def get_wines_assortment(data_base):
-    wines_data = pandas.read_excel(
+    wines = pandas.read_excel(
                     data_base,
                     sheet_name='Лист1',
                     na_values=False,
                     keep_default_na=False
                     ).to_dict(orient='records')
     categories = collections.defaultdict(list)
-    for wine in wines_data:
+    for wine in wines:
         categories[wine['Категория']].append(wine)
     return categories
 
