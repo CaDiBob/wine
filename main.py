@@ -20,17 +20,17 @@ def get_wines_assortment(data_base):
                     na_values=False,
                     keep_default_na=False
                     ).to_dict(orient='records')
-    categories = collections.defaultdict(list)
+    wine_by_categories = collections.defaultdict(list)
     for wine in wines:
-        categories[wine['Категория']].append(wine)
-    return categories
+        wine_by_categories[wine['Категория']].append(wine)
+    return wine_by_categories
 
 
-def render_page(categories, env, date):
+def render_page(wine_by_categories, env, age_of_winery):
     template = env.get_template('template.html')
     rendered_page = template.render(
-                    categories=categories,
-                    age_winery=f'Уже {date} год с вами'
+                    categories=wine_by_categories,
+                    age_winery=f'Уже {age_of_winery} год с вами'
                     )
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
@@ -41,13 +41,13 @@ def render_page(categories, env, date):
 def main():
     load_dotenv()
     data_base = os.getenv('DB_XLSX', default='wine.xlsx')
-    categories = get_wines_assortment(data_base)
-    date = get_age_winery()
+    wine_by_categories = get_wines_assortment(data_base)
+    age_of_winery = get_age_winery()
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-    render_page(categories, env, date)
+    render_page(wine_by_categories, env, age_of_winery)
 
 
 if __name__ == '__main__':
